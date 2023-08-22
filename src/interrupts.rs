@@ -1,14 +1,21 @@
+// Import necessary crates and modules
 use crate::{gdt, print, println};
-
 use lazy_static::lazy_static;
 use pic8259::ChainedPics;
 use spin;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
+// Define constants for PIC offsets
 pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
+
+// Define a global counter for character tracking
 static mut COUNT: usize = 0;
+
+// Define the size of the character array
 const ARRAY_SIZE: usize = 7;
+
+// Create an array to store characters
 static mut CHARS: [Option<char>; ARRAY_SIZE] = [None; ARRAY_SIZE];
 
 #[derive(Debug, Clone, Copy)]
@@ -28,32 +35,42 @@ impl InterruptIndex {
     }
 }
 
+// Create a static mutex for the Programmable Interrupt Controllers (PICs)
 pub static PICS: spin::Mutex<ChainedPics> =
     spin::Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) });
 
+// Create a lazy static Interrupt Descriptor Table (IDT)
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
+
+        // Set handler function for breakpoint exception
         idt.breakpoint.set_handler_fn(breakpoint_handler);
+        
         unsafe {
             idt.double_fault
                 .set_handler_fn(double_fault_handler)
                 .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
+
+        // Set handler functions for timer and keyboard interrupts
         idt[InterruptIndex::Timer.as_usize()].set_handler_fn(timer_interrupt_handler);
         idt[InterruptIndex::Keyboard.as_usize()].set_handler_fn(keyboard_interrupt_handler);
         idt
     };
 }
 
+// Function to initialize the Interrupt Descriptor Table
 pub fn init_idt() {
     IDT.load();
 }
 
+// Handler for the breakpoint exception
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
     println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
 }
 
+// Handler for the double fault exception
 extern "x86-interrupt" fn double_fault_handler(
     stack_frame: InterruptStackFrame,
     _error_code: u64,
@@ -61,18 +78,20 @@ extern "x86-interrupt" fn double_fault_handler(
     panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
 }
 
+// Handler for the timer interrupt
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
-    //print!("{}",ASCII_AMFOSS);
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
     }
 }
 
+// Function to check if a sequence of characters matches success condition
 fn success(chars: &[Option<char>; ARRAY_SIZE]) -> bool {
     chars[..ARRAY_SIZE-1] == [Some('a'), Some('m'), Some('f'), Some('o'), Some('s'), Some('s')]
 }
 
+// Function to shift characters to the left in the array
 fn left_shift(chars: &mut [Option<char>; ARRAY_SIZE]) {
     for i in 0..ARRAY_SIZE - 1 {
         chars[i] = chars[i + 1];
@@ -80,6 +99,7 @@ fn left_shift(chars: &mut [Option<char>; ARRAY_SIZE]) {
     chars[ARRAY_SIZE - 1] = None;
 }
 
+// Function to add a character to the character array
 fn add_character(chars: &mut [Option<char>; ARRAY_SIZE], character: char) -> Result<(), &'static str> {
     if chars[ARRAY_SIZE - 1].is_some() {
         // The array is full, remove the last character
@@ -101,6 +121,7 @@ fn add_character(chars: &mut [Option<char>; ARRAY_SIZE], character: char) -> Res
     Err("Left shift failed. Cannot add more characters.")
 }
 
+// Function to print the character array
 fn print_array(chars: &[Option<char>; 7]) {
     for i in 0..chars.len()-1 {
         if let Some(c) = chars[i] {
@@ -111,6 +132,7 @@ fn print_array(chars: &[Option<char>; 7]) {
     }
 }
 
+// Handler for the keyboard interrupt
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
     use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
     use spin::Mutex;
@@ -122,16 +144,18 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
         );
     }
 
+    // Lock the keyboard and read the scancode from the port
     let mut keyboard = KEYBOARD.lock();
-    let port_address: u16 = 0x69;
+    let port_address: u16 = 0x60;
     let mut port = Port::new(port_address);
 
-let scancode: u8 = unsafe { port.read() };
+    let scancode: u8 = unsafe { port.read() };
 
 if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
     if let Some(key) = keyboard.process_keyevent(key_event) {
         match key {
             DecodedKey::Unicode(character) => {
+                // Check for success condition
                 unsafe{
                     if success(&CHARS) {
                         println!("{}",ASCII_AINZ);
@@ -150,7 +174,6 @@ if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
                                 }
                         }
                     }
-                //print!("{:?}", character);
                 }
             },
             DecodedKey::RawKey(key) => print!("{:?}", key),
@@ -158,14 +181,14 @@ if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
     }
 }
 
-
-
+    // Notify PIC that interrupt has been handled
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
     }
 }
 
+// Test case for the breakpoint exception
 #[test_case]
 fn test_breakpoint_exception() {
     // invoke a breakpoint exception

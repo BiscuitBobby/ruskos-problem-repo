@@ -8,48 +8,29 @@
 #![test_runner(rusk_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+//importing items (functions, variables, etc)
 use rusk_os::println;
 use rusk_os::print;
 use core::panic::PanicInfo;
-pub mod frames;
+pub mod frames; // declares a module named frames in the current Rust code file.
 use frames::ASCII_AMFOSS_top;
 use frames::ASCII_AMFOSS_bottom;
 
-#[no_mangle]
+#[no_mangle] // The main function starts here
 pub extern "C" fn _start() -> ! {
 print(ASCII_AMFOSS_top);
 print!("{}",ASCII_AMFOSS_bottom);
 
 
-  rusk_os::init()
+  rusk_os::init() //initialises essential kernel functions
 
   #[cfg(test)]
-  test_main();
+  test_main(); //test function
 
-  rusk_os::hlt_loop();
+  rusk_os::hlt_loop(); //main loop
 }
 
-fn add_space_before_lines(input: &[u8]) -> [u8; 256] {
-  let mut result = [0u8; 256];
-  let mut input_index = 0;
-  let mut result_index = 0;
-
-  while input[input_index] != 0 {
-      if input[input_index] == b'\n' {
-
-          result[result_index] = b' ';
-          result_index += 1;
-      }
-
-      result[result_index] = input[input_index];
-      result_index += 1;
-      input_index += 1;
-  }
-
-  result
-}
-
-/// This function is called on panic.
+/// This function is called on panic (In case of errors).
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {

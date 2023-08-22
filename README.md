@@ -13,4 +13,30 @@ Unfortunately, the kernel sustained some damage due to an enemy ambush on the wa
 - Correct the inverted text input
 
 ## Expected output:
-![output](https://github.com/BiscuitBobby/ruskos-problem-repo/assets/87699062/a5b37e3c-de21-4da3-a855-f42f59c97738)
+![output](https://github.com/BiscuitBobby/ruskos-problem-repo/blob/main/output.gif)
+
+## Requirements:
+- Rust nightly
+- Qemu
+
+## Some pointers:
+- The source code is located at the src/ directory
+- The bulk of the incorrect code is primarily located at the following files:
+  - main.rs
+  - interrupts.rs
+  - vga_buffer.rs
+- The passcode is "amfoss"
+
+## How to run it:
+### Run the following commands in the terminal
+- ```cargo build --target x86_64-rusk.json```
+- ```cargo install bootimage```
+- ```rustup component add llvm-tools-preview```
+- ```cargo run```
+
+## 📚 Resources: 
+- <a href="https://www.geeksforgeeks.org/kernel-in-operating-system/">What is a Kernel?</a>
+- <a href="https://doc.rust-lang.org/book/ch01-00-getting-started.html">Getting started with Rust</a>
+- <a href="https://os.phil-opp.com/minimal-rust-kernel/">Making a kernel in Rust</a>
+  
+
