@@ -14,3 +14,14 @@ Unfortunately, the kernel sustained some damage due to an enemy ambush on the wa
 
 ## Expected output:
 ![output](https://github.com/BiscuitBobby/ruskos-problem-repo/assets/87699062/a5b37e3c-de21-4da3-a855-f42f59c97738)
+
+## Requirements:
+- Rust nightly
+- Qemu
+
+## Some pointers:
+- The source code is located at the src/ directory
+- The bulk of the incorrect code is primarily located at the following files:
+  - main.rs
+  - interrupts.rs
+  - vga_buffer.rs
