@@ -25,3 +25,10 @@ Unfortunately, the kernel sustained some damage due to an enemy ambush on the wa
   - main.rs
   - interrupts.rs
   - vga_buffer.rs
+
+## 📚 Resources: 
+- <a href="https://www.geeksforgeeks.org/kernel-in-operating-system/">What is a Kernel?</a>
+- <a href="https://doc.rust-lang.org/book/ch01-00-getting-started.html">Getting started with Rust</a>
+- <a href="https://os.phil-opp.com/minimal-rust-kernel/">Making a kernel in Rust</a>
+  
+
