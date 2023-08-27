@@ -13,7 +13,7 @@ Unfortunately, the kernel sustained some damage due to an enemy ambush on the wa
 - Correct the inverted text input
 
 ## Expected output:
-![output](https://github.com/BiscuitBobby/ruskos-problem-repo/assets/87699062/0cda96ef-c141-40e5-af2c-6d335d45118f)
+![output](https://github.com/BiscuitBobby/ruskos-problem-repo/blob/main/output.gif)
 
 ## Requirements:
 - Rust nightly
