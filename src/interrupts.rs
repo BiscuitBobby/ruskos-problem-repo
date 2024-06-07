@@ -125,7 +125,7 @@ fn add_character(chars: &mut [Option<char>; ARRAY_SIZE], character: char) -> Res
 fn print_array(chars: &[Option<char>; 7]) {
     for i in 0..chars.len()-1 {
         if let Some(c) = chars[i] {
-            print!("{:?}", c);
+            print!({:?}, c);
         } else {
             print!(".");
         }
