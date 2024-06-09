@@ -93,7 +93,7 @@ First, we need to install Rust and Rustup, the toolchain installer for Rust.
     ```
 2. Navigate to the project directory:
     ```sh
-        cd Rusk_OS
+        cd ruskos-problem-repo
     ```
 3. Install Bootimage:
 
