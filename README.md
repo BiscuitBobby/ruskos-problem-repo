@@ -114,6 +114,7 @@ First, we need to install Rust and Rustup, the toolchain installer for Rust.
 5. Build and Run the Kernel
 - Build the kernel:
   ```sh
+  cargo clean
   cargo +nightly build -Z build-std --target x86_64-rusk.json
   ```
 6. Run the kernel using QEMU:
